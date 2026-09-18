@@ -10,8 +10,7 @@ class PostBase(BaseModel):
 
 
 class PostCreate(PostBase):
-    created_at: datetime
-    author_id: int
+    pass
 
 
 class PostInDB(PostBase):
@@ -24,3 +23,9 @@ class PostInDB(PostBase):
 class PostPublic(PostBase):
     id: int
     author_id: int
+
+
+class PostUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    content: str | None = None

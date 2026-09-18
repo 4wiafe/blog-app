@@ -15,8 +15,16 @@ class UserInDB(UserBase):
     id: int
     email: EmailStr
     hashed_password: str
-    is_active: bool
+    active: bool
 
 
 class UserPublic(UserBase):
     id: int
+
+
+class UserUpdate(BaseModel):
+    full_name: str | None = None
+    username: str | None = None
+    email: EmailStr | None = None
+    password: str | None = None
+    active: bool | None = None
