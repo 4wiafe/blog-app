@@ -71,7 +71,7 @@ More endpoints are added in later phases.
 ## Roadmap
 
 - [x] Phase 0 — skeleton, configuration, health check
-- [ ] Phase 1 — database models and migrations
+- [x] Phase 1 — database models and migrations
 - [ ] Phase 2 — users and authentication
 - [ ] Phase 3 — posts and ownership
 - [ ] Phase 4 — public browsing and pagination
