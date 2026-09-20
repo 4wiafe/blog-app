@@ -1,4 +1,6 @@
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from collections.abc import Generator
+
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy import create_engine
 
 
@@ -14,10 +16,10 @@ engine = create_engine(settings.database_url)
 SessionLocal = sessionmaker(
     bind=engine,
     autoflush=False,
-    autocommit=False,
+    expire_on_commit=False,
 )
 
 
-def get_session():
+def get_session() -> Generator[Session, None, None]:
     with SessionLocal() as session:
         yield session

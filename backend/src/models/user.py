@@ -20,7 +20,7 @@ class User(Base):
     )
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
-    active: Mapped[bool] = mapped_column(default=True)
+    is_active: Mapped[bool] = mapped_column(default=True)
 
     posts: Mapped[list[Post]] = relationship(
         back_populates="user", passive_deletes=True
