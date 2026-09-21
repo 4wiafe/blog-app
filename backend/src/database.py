@@ -1,5 +1,7 @@
 from collections.abc import Generator
+from typing import Annotated
 
+from fastapi import Depends
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy import create_engine
 
@@ -23,3 +25,6 @@ SessionLocal = sessionmaker(
 def get_session() -> Generator[Session, None, None]:
     with SessionLocal() as session:
         yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
