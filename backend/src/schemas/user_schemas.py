@@ -9,6 +9,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: EmailStr
     password: str
+    confirm_password: str
 
 
 class UserInDB(UserBase):
