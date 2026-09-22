@@ -1,10 +1,9 @@
 from database import SessionDep
 from models.user import User
-
 from sqlalchemy import select, update, delete
 
 
-def create_user(user: User, session: SessionDep) -> User:
+def add_user(user: User, session: SessionDep) -> User:
     session.add(user)
     session.commit()
     session.refresh(user)
