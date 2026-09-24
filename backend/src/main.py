@@ -1,9 +1,13 @@
 from fastapi import FastAPI
 
+from routers import auth_route
+
 app = FastAPI(
     title="Blog-App",
-    description="This is blog app where users can post and read blogs",
+    description="This is a blog app where users can post and read blogs",
 )
+
+app.include_router(auth_route.router)
 
 
 @app.get("/health", tags=["health"])
