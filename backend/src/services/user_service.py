@@ -1,5 +1,6 @@
 from schemas.user_schemas import UserPublic, UserCreate
-from crud.user_crud import get_user_by_email, get_user_by_username, add_user
+from crud.user_crud import get_user_by_email, add_user
+from crud import user_crud
 from database import SessionDep
 from utils.helpers import get_password_hash
 from models.user import User
@@ -7,6 +8,12 @@ from models.user import User
 from fastapi import HTTPException, status
 
 
+# Fetch username
+def get_user_by_username(username: str, session: SessionDep) -> User | None:
+    return user_crud.get_user_by_username(username, session)
+
+
+# Create a new user
 def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
 
     # Throw error if password mismatches
