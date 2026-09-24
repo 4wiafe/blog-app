@@ -5,12 +5,9 @@ from utils.helpers import verify_password, DUMMY_HASH
 from config import settings
 
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 import jwt
 
 from datetime import datetime, timedelta, timezone
-
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def authenticate_user(username: str, password: str, session: SessionDep) -> UserPublic:

@@ -1,3 +1,8 @@
+from typing import Annotated
+
+
+from config import settings
+from schemas.token_schemas import TokenData
 from schemas.user_schemas import UserPublic, UserCreate
 from crud.user_crud import get_user_by_email, add_user
 from crud import user_crud
@@ -5,7 +10,12 @@ from database import SessionDep
 from utils.helpers import get_password_hash
 from models.user import User
 
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+import jwt
+from jwt import InvalidTokenError
+
+oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # Fetch username
@@ -13,7 +23,6 @@ def get_user_by_username(username: str, session: SessionDep) -> User | None:
     return user_crud.get_user_by_username(username, session)
 
 
-# Create a new user
 def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
 
     # Throw error if password mismatches
@@ -57,4 +66,43 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
         id=added_user.id,  # type: ignore
         full_name=added_user.full_name,
         username=added_user.username,
+    )
+
+
+def get_current_user(
+    session: SessionDep, token: Annotated[str, Depends(oauth2_schema)]
+) -> UserPublic:
+    # Error message
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # Decode token
+    try:
+        payload = jwt.decode(
+            token,
+            settings.secret_key,
+            algorithms=[settings.algorithm],
+        )
+        username = payload.get("sub")
+
+        if username is None:
+            raise credentials_exception
+
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+        raise credentials_exception
+
+    # Return a user
+    user = get_user_by_username(token_data.username, session)  # type: ignore
+
+    if user is None:
+        raise credentials_exception
+
+    return UserPublic(
+        id=user.id,  # type: ignore
+        full_name=user.full_name,
+        username=user.username,
     )
