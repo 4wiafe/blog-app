@@ -4,11 +4,6 @@ from sqlalchemy import String
 
 from database import Base
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .post import Post
-
 
 class User(Base):
     __tablename__ = "users"
@@ -22,6 +17,8 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    posts: Mapped[list[Post]] = relationship(
-        back_populates="user", passive_deletes=True
+    posts = relationship(
+        "Post",
+        back_populates="user",
+        passive_deletes=True,
     )

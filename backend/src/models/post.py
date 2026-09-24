@@ -2,13 +2,9 @@ from __future__ import annotations
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, DateTime, func, ForeignKey
 
-from ..database import Base
+from database import Base
 
 from datetime import datetime
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .user import User
 
 
 class Post(Base):
@@ -26,4 +22,4 @@ class Post(Base):
         ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
     )
 
-    user: Mapped[User] = relationship(back_populates="posts")
+    user = relationship("User", back_populates="posts")
