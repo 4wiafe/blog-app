@@ -71,7 +71,7 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
 
 def get_current_user(
     session: SessionDep, token: Annotated[str, Depends(oauth2_schema)]
-) -> UserPublic:
+) -> User:
     # Error message
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -101,8 +101,16 @@ def get_current_user(
     if user is None:
         raise credentials_exception
 
-    return UserPublic(
-        id=user.id,  # type: ignore
-        full_name=user.full_name,
-        username=user.username,
-    )
+    return user
+
+
+def get_current_active_user(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    # Check if user is active
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive user"
+        )
+
+    return current_user
