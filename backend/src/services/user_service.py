@@ -167,3 +167,15 @@ def update_user(
         )
 
     return updated_user
+
+
+def delete_user(user_id: int, session: SessionDep) -> bool:
+    deleted_user = user_crud.delete_user(user_id, session)
+
+    if not deleted_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to delete user",
+        )
+
+    return deleted_user
