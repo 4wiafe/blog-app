@@ -4,7 +4,6 @@ from typing import Annotated
 from config import settings
 from schemas.token_schemas import TokenData
 from schemas.user_schemas import UserPublic, UserCreate
-from crud.user_crud import get_user_by_email, add_user
 from crud import user_crud
 from database import SessionDep
 from utils.helpers import get_password_hash
@@ -18,11 +17,6 @@ from jwt import InvalidTokenError
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
-# Fetch username
-def get_user_by_username(username: str, session: SessionDep) -> User | None:
-    return user_crud.get_user_by_username(username, session)
-
-
 def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
 
     # Throw error if password mismatches
@@ -33,7 +27,7 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
         )
 
     # Throw error if email exist
-    user_email = get_user_by_email(user.email, session)
+    user_email = user_crud.get_user_by_email(user.email, session)
 
     if user_email is not None:
         raise HTTPException(
@@ -60,7 +54,7 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
         hashed_password=hashed_password,
     )
 
-    added_user = add_user(user_data, session)
+    added_user = user_crud.add_user(user_data, session)
 
     return UserPublic(
         id=added_user.id,  # type: ignore
@@ -114,3 +108,39 @@ def get_current_active_user(
         )
 
     return current_user
+
+
+def get_user_by_id(user_id: int, session: SessionDep) -> User:
+    user = user_crud.get_user_by_id(user_id, session)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with id {user_id} not found",
+        )
+
+    return user
+
+
+def get_user_by_username(username: str, session: SessionDep) -> User:
+    user = user_crud.get_user_by_username(username, session)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with username {username} not found",
+        )
+
+    return user
+
+
+def get_user_by_email(email: str, session: SessionDep) -> User:
+    user = user_crud.get_user_by_username(email, session)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with email {email} not found",
+        )
+
+    return user

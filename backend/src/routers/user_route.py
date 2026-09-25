@@ -7,7 +7,10 @@ from schemas.user_schemas import UserCreate, UserPublic
 from services.user_service import get_current_active_user, register_user
 from database import SessionDep
 
-router = APIRouter(tags=["users"])
+router = APIRouter(
+    tags=["users"],
+    responses={404: {"description": "Not found"}},
+)
 
 
 @router.post(

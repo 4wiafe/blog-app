@@ -9,7 +9,10 @@ from services.auth_service import authenticate_user, create_access_token
 from database import SessionDep
 from config import settings
 
-router = APIRouter(tags=["authentication"])
+router = APIRouter(
+    tags=["authentication"],
+    responses={404: {"description": "Not found"}},
+)
 
 
 @router.post("/token", response_model=Token, status_code=status.HTTP_200_OK)
