@@ -20,7 +20,11 @@ def add_new_user(user: UserCreate, session: SessionDep):
     return registered_user
 
 
-@router.get("/users/me", response_model=UserPublic)
+@router.get(
+    "/users/me",
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK,
+)
 def read_active_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
