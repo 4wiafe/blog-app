@@ -144,3 +144,26 @@ def get_user_by_email(email: str, session: SessionDep) -> User:
         )
 
     return user
+
+
+def update_user(
+    user_id: int,
+    values: dict[str, str | bool],
+    session: SessionDep,
+) -> User:
+
+    if not values:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Update values cannot be empty",
+        )
+
+    updated_user = user_crud.update_user(user_id, values, session)
+
+    if updated_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No user found to update",
+        )
+
+    return updated_user
