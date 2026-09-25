@@ -36,7 +36,7 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
         )
 
     # Throw error if username exist
-    username = get_user_by_username(user.username, session)
+    username = user_crud.get_user_by_username(user.username, session)
 
     if username is not None:
         raise HTTPException(
@@ -129,18 +129,6 @@ def get_user_by_username(username: str, session: SessionDep) -> User:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"User with username {username} not found",
-        )
-
-    return user
-
-
-def get_user_by_email(email: str, session: SessionDep) -> User:
-    user = user_crud.get_user_by_username(email, session)
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with email {email} not found",
         )
 
     return user
