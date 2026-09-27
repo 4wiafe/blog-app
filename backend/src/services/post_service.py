@@ -1,4 +1,5 @@
-from crud.post_crud import create_post
+from crud.post_crud import create_post, get_all_posts
+from crud.user_crud import get_user_by_id
 from database import SessionDep
 from models.user import User
 from models.post import Post
@@ -27,3 +28,35 @@ def add_post(post: PostCreate, current_user: User, session: SessionDep) -> PostP
             username=current_user.username,
         ),
     )
+
+
+def list_posts(
+    session: SessionDep,
+    offset: int,
+    limit: int,
+) -> list[PostPublic]:
+    db_posts = get_all_posts(offset, limit, session)
+    public_posts = []
+
+    if len(db_posts) == 0:
+        return []
+
+    for post in db_posts:
+        author = get_user_by_id(post.author_id, session)
+        assert author is not None
+
+        public_posts.append(
+            PostPublic(
+                id=post.id,  # type: ignore
+                title=post.title,
+                description=post.description,
+                content=post.content,
+                author=UserPublic(
+                    id=author.id,  # type: ignore
+                    full_name=author.full_name,
+                    username=author.username,
+                ),
+            )
+        )
+
+    return public_posts
