@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from models import User, Post
-from routers import auth_route, user_route
+from routers import auth_route, user_route, post_route
 
 app = FastAPI(
     title="Blog-App",
@@ -11,6 +11,7 @@ app = FastAPI(
 
 app.include_router(user_route.router)
 app.include_router(auth_route.router)
+app.include_router(post_route.router)
 
 
 @app.get("/health", tags=["health"])
