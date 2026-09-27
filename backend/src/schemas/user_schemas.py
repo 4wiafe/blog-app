@@ -28,4 +28,4 @@ class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=4, max_length=30)
     email: EmailStr | None = None
     password: str | None = Field(default=None, min_length=8)
-    is_active: bool | None = Field(default=None, min_length=8)
+    is_active: bool | None = None
