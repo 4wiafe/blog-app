@@ -4,7 +4,12 @@ from fastapi import APIRouter, Depends, status, Query
 
 from models.user import User
 from schemas.user_schemas import UserCreate, UserPublic, UserUpdate
-from services.user_service import get_current_active_user, register_user, update_user
+from services.user_service import (
+    delete_user,
+    get_current_active_user,
+    register_user,
+    update_user,
+)
 from database import SessionDep
 
 router = APIRouter(
@@ -46,3 +51,10 @@ def edit_user(
     updated_user = update_user(user_id, to_dict, session)
 
     return updated_user
+
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_user(user_id: int, session: SessionDep):
+    deleted_user = delete_user(user_id, session)
+
+    return deleted_user
