@@ -20,6 +20,11 @@ def get_all_posts(offset: int, limit: int, session: SessionDep) -> list[Post]:
     return list(session.scalars(statement).all())
 
 
+def get_post_by_id(post_id: int, session: SessionDep) -> Post | None:
+    statement = select(Post).where(Post.id == post_id)
+    return session.scalar(statement)
+
+
 def get_posts_by_author(
     author_id: int, offset: int, limit: int, session: SessionDep
 ) -> list[Post]:
