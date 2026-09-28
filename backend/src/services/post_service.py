@@ -1,10 +1,16 @@
-from crud.post_crud import create_post, get_all_posts
+from crud.post_crud import (
+    create_post,
+    get_all_posts,
+    get_post_by_id,
+)
 from crud.user_crud import get_user_by_id
 from database import SessionDep
 from models.user import User
 from models.post import Post
 from schemas.post_schemas import PostCreate, PostPublic
 from schemas.user_schemas import UserPublic
+
+from fastapi import HTTPException, status
 
 
 def add_post(post: PostCreate, current_user: User, session: SessionDep) -> PostPublic:
@@ -60,3 +66,32 @@ def list_posts(
         )
 
     return public_posts
+
+
+def fetch_post_by_id(
+    post_id: int,
+    session: SessionDep,
+) -> PostPublic:
+
+    post = get_post_by_id(post_id, session)
+
+    if not post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Post with id {post_id} not found",
+        )
+
+    author = get_user_by_id(post.author_id, session)
+    assert author is not None
+
+    return PostPublic(
+        id=post.id,  # type: ignore
+        title=post.title,
+        description=post.description,
+        content=post.content,
+        author=UserPublic(
+            id=author.id,  # type: ignore
+            full_name=author.full_name,
+            username=author.username,
+        ),
+    )
