@@ -4,12 +4,17 @@ from crud.post_crud import (
     get_post_by_id,
     get_post_by_title,
     get_posts_by_author,
+    update_post,
 )
 from crud.user_crud import get_user_by_id, get_user_by_username
 from database import SessionDep
 from models.user import User
 from models.post import Post
-from schemas.post_schemas import PostCreate, PostPublic
+from schemas.post_schemas import (
+    PostCreate,
+    PostPublic,
+    PostUpdate,
+)
 from schemas.user_schemas import UserPublic
 
 from fastapi import HTTPException, status
@@ -175,3 +180,40 @@ def fetch_posts_by_author(
         )
 
     return public_posts
+
+
+def edit_post(
+    post_id: int,
+    values: PostUpdate,
+    session: SessionDep,
+) -> PostPublic:
+
+    if not values:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Update values cannot be empty",
+        )
+
+    update_values = values.model_dump(exclude_unset=True)
+    updated_post = update_post(post_id, update_values, session)
+
+    if not updated_post:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Post with id {post_id} not found",
+        )
+
+    author = get_user_by_id(updated_post.id, session)  # type: ignore
+    assert author is not None
+
+    return PostPublic(
+        id=updated_post.id,  # type: ignore
+        title=updated_post.title,
+        description=updated_post.description,
+        content=updated_post.content,
+        author=UserPublic(
+            id=author.id,  # type: ignore
+            full_name=author.full_name,
+            username=author.username,
+        ),
+    )
