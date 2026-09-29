@@ -155,7 +155,7 @@ def update_user(
     if not values:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Update values cannot be empty",
+            detail="Update values cannot be empty",
         )
 
     updated_user = user_crud.update_user(user_id, values, session)

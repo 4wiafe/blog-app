@@ -7,11 +7,16 @@ from fastapi import APIRouter, Depends, Query, status
 from models.user import User
 from services.post_service import (
     add_post,
+    edit_post,
     fetch_post_by_id,
     list_posts,
     fetch_post_by_title,
 )
-from schemas.post_schemas import PostCreate, PostPublic
+from schemas.post_schemas import (
+    PostCreate,
+    PostPublic,
+    PostUpdate,
+)
 from database import SessionDep
 from services.user_service import get_current_active_user
 
@@ -84,3 +89,12 @@ def get_post_by_title(
 )
 def get_post_by_id(id: int, session: SessionDep):
     return fetch_post_by_id(id, session)
+
+
+@router.patch(
+    "/posts/{id}",
+    response_model=PostPublic,
+    status_code=status.HTTP_200_OK,
+)
+def update_post(id: int, values: PostUpdate, session):
+    return edit_post(id, values, session)
