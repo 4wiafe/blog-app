@@ -3,8 +3,9 @@ from crud.post_crud import (
     get_all_posts,
     get_post_by_id,
     get_post_by_title,
+    get_posts_by_author,
 )
-from crud.user_crud import get_user_by_id
+from crud.user_crud import get_user_by_id, get_user_by_username
 from database import SessionDep
 from models.user import User
 from models.post import Post
@@ -129,3 +130,48 @@ def fetch_post_by_title(
         )
 
     return posts
+
+
+def fetch_posts_by_author(
+    username: str,
+    offset: int,
+    limit: int,
+    session: SessionDep,
+) -> list[PostPublic]:
+
+    author = get_user_by_username(username, session)
+
+    if not author:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with username {username} not found",
+        )
+
+    user_posts = get_posts_by_author(
+        author.id,  # type: ignore
+        offset,
+        limit,
+        session,
+    )
+
+    public_posts = []
+
+    if len(user_posts) == 0:
+        return []
+
+    for post in user_posts:
+        public_posts.append(
+            PostPublic(
+                id=post.id,  # type: ignore
+                title=post.title,
+                description=post.description,
+                content=post.content,
+                author=UserPublic(
+                    id=author.id,  # type: ignore
+                    full_name=author.full_name,
+                    username=author.username,
+                ),
+            )
+        )
+
+    return public_posts
