@@ -3,7 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, Query
 
 from models.user import User
+from schemas.post_schemas import PostPublic
 from schemas.user_schemas import UserCreate, UserPublic, UserUpdate
+from services.post_service import fetch_posts_by_author
 from services.user_service import (
     delete_user,
     get_current_active_user,
@@ -74,3 +76,22 @@ def remove_user(
     deleted_user = delete_user(user_id, session)
 
     return deleted_user
+
+
+@router.get(
+    "/users/{username}/posts",
+    response_model=list[PostPublic],
+    status_code=status.HTTP_200_OK,
+)
+def get_user_posts(
+    username: str,
+    session: SessionDep,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(le=10)] = 10,
+):
+    return fetch_posts_by_author(
+        username,
+        offset,
+        limit,
+        session,
+    )
