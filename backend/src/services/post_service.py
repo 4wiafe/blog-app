@@ -2,6 +2,7 @@ from crud.post_crud import (
     create_post,
     get_all_posts,
     get_post_by_id,
+    get_post_by_title,
 )
 from crud.user_crud import get_user_by_id
 from database import SessionDep
@@ -95,3 +96,36 @@ def fetch_post_by_id(
             username=author.username,
         ),
     )
+
+
+def fetch_post_by_title(
+    post_title: str,
+    offset: int,
+    limit: int,
+    session: SessionDep,
+) -> list[PostPublic]:
+    db_posts = get_post_by_title(post_title, offset, limit, session)
+    posts = []
+
+    if len(db_posts) == 0:
+        return []
+
+    for post in db_posts:
+        author = get_user_by_id(post.author_id, session)
+        assert author is not None
+
+        posts.append(
+            PostPublic(
+                id=post.id,  # type: ignore
+                title=post.title,
+                description=post.description,
+                content=post.content,
+                author=UserPublic(
+                    id=author.id,  # type: ignore
+                    full_name=author.full_name,
+                    username=author.username,
+                ),
+            )
+        )
+
+    return posts
