@@ -1,5 +1,7 @@
 from typing import Annotated
 
+from pydantic import BaseModel, Field
+
 from fastapi import APIRouter, Depends, Query, status
 
 from models.user import User
@@ -7,10 +9,18 @@ from services.post_service import (
     add_post,
     fetch_post_by_id,
     list_posts,
+    fetch_post_by_title,
 )
 from schemas.post_schemas import PostCreate, PostPublic
 from database import SessionDep
 from services.user_service import get_current_active_user
+
+
+class SearchParams(BaseModel):
+    title: str
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=10, le=10)
+
 
 router = APIRouter(
     prefix="/posts",
@@ -40,10 +50,31 @@ def create_post(
 )
 def get_posts(
     session: SessionDep,
-    offset: int = 0,
-    limit: int = 10,
+    offset: Annotated[int, Query(ge=0)] = 0,
+    limit: Annotated[int, Query(le=10)] = 10,
 ):
-    return list_posts(session, offset, limit)
+    return list_posts(
+        session,
+        offset,
+        limit,
+    )
+
+
+@router.get(
+    "/search",
+    response_model=list[PostPublic],
+    status_code=status.HTTP_200_OK,
+)
+def get_post_by_title(
+    search_query: Annotated[SearchParams, Query()],
+    session: SessionDep,
+):
+    return fetch_post_by_title(
+        search_query.title,
+        search_query.offset,
+        search_query.limit,
+        session,
+    )
 
 
 @router.get(
