@@ -122,5 +122,13 @@ def update_post(
     "/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-def delete_post(id: int, session: SessionDep):
-    return remove_post(id, session)
+def delete_post(
+    id: int,
+    session: SessionDep,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
+    return remove_post(
+        id,
+        current_user.id,  # type: ignore
+        session,
+    )
