@@ -17,6 +17,7 @@ from jwt import InvalidTokenError
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="token")
 
 
+# Add user
 def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
 
     # Throw error if password mismatches
@@ -63,6 +64,7 @@ def register_user(user: UserCreate, session: SessionDep) -> UserPublic:
     )
 
 
+# Get current user
 def get_current_user(
     session: SessionDep, token: Annotated[str, Depends(oauth2_schema)]
 ) -> User:
@@ -98,6 +100,7 @@ def get_current_user(
     return user
 
 
+# Get active user
 def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
@@ -110,6 +113,7 @@ def get_current_active_user(
     return current_user
 
 
+# Get user using id
 def get_user_by_id(user_id: int, session: SessionDep) -> User:
     user = user_crud.get_user_by_id(user_id, session)
 
@@ -122,6 +126,7 @@ def get_user_by_id(user_id: int, session: SessionDep) -> User:
     return user
 
 
+# Get user using username
 def get_user_by_username(username: str, session: SessionDep) -> User:
     user = user_crud.get_user_by_username(username, session)
 
@@ -134,6 +139,7 @@ def get_user_by_username(username: str, session: SessionDep) -> User:
     return user
 
 
+# Get user using email
 def get_user_by_email(email: str, session: SessionDep) -> User:
     user = user_crud.get_user_by_username(email, session)
 
@@ -146,11 +152,20 @@ def get_user_by_email(email: str, session: SessionDep) -> User:
     return user
 
 
+# Edit user
 def update_user(
     user_id: int,
     values: dict[str, str | bool],
     session: SessionDep,
-) -> User:
+) -> UserPublic:
+
+    user = get_user_by_id(user_id, session)
+
+    if user.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to perform this operation",
+        )
 
     if not values:
         raise HTTPException(
@@ -159,16 +174,16 @@ def update_user(
         )
 
     updated_user = user_crud.update_user(user_id, values, session)
+    assert updated_user is not None
 
-    if updated_user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No user found to update",
-        )
-
-    return updated_user
+    return UserPublic(
+        id=updated_user.id,  # type: ignore
+        full_name=updated_user.full_name,
+        username=updated_user.username,
+    )
 
 
+# Delete user
 def delete_user(user_id: int, session: SessionDep) -> bool:
     deleted_user = user_crud.delete_user(user_id, session)
 
