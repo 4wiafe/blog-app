@@ -246,7 +246,20 @@ def edit_post(
 
 
 # Delete post
-def remove_post(post_id: int, session: SessionDep) -> bool:
+def remove_post(
+    post_id: int,
+    user_id: int,
+    session: SessionDep,
+) -> bool:
+
+    post = fetch_post_by_id(post_id, session)
+
+    if post.author.id != user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to perform this operation",
+        )
+
     deleted_post = delete_post(post_id, session)
 
     if not deleted_post:
