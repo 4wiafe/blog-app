@@ -9,6 +9,7 @@ from services.post_service import fetch_posts_by_author
 from services.user_service import (
     delete_user,
     get_current_active_user,
+    get_current_user,
     get_user_by_username,
     register_user,
     update_user,
@@ -53,19 +54,23 @@ def read_user_by_username(username: str, session: SessionDep):
 
 # Edit current user
 @router.patch(
-    "/users/me", response_model=UserPublic, status_code=status.HTTP_201_CREATED
+    "/users/me",
+    response_model=UserPublic,
+    status_code=status.HTTP_200_OK,
 )
 def edit_user(
     values: Annotated[UserUpdate, Query()],
     session: SessionDep,
-    current_user: Annotated[User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_user)],
 ):
-    values_copy = values.model_copy()
-    to_dict = values_copy.model_dump(exclude_unset=True)
+    to_dict = values.model_dump(exclude_unset=True)
     user_id = current_user.id
-    assert user_id is not None
 
-    updated_user = update_user(user_id, to_dict, session)
+    updated_user = update_user(
+        user_id,  # type: ignore
+        to_dict,
+        session,
+    )
 
     return updated_user
 
