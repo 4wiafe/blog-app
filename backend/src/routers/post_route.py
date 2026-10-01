@@ -11,6 +11,7 @@ from services.post_service import (
     fetch_post_by_id,
     list_posts,
     fetch_post_by_title,
+    remove_post,
 )
 from schemas.post_schemas import (
     PostCreate,
@@ -97,10 +98,19 @@ def get_post_by_id(id: int, session: SessionDep):
 
 # Edit a post
 @router.patch(
-    "/posts/{id}",
+    "/{id}",
     response_model=PostPublic,
     status_code=status.HTTP_200_OK,
 )
 def update_post(id: int, values: PostUpdate, session: SessionDep):
     to_dict = values.model_dump(exclude_unset=True)
     return edit_post(id, to_dict, session)
+
+
+# Delete a post
+@router.delete(
+    "/{id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_post(id: int, session: SessionDep):
+    return remove_post(id, session)
