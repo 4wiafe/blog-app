@@ -54,7 +54,7 @@ def get_post_by_title(
 
 
 def update_post(
-    post_id: int, values: dict[str, str], session: SessionDep
+    post_id: int, values: dict[str, str | None | bool], session: SessionDep
 ) -> Post | None:
     statement = update(Post).where(Post.id == post_id).values(**values).returning(Post)
     post = session.scalar(statement)
