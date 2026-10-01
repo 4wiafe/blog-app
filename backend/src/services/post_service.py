@@ -1,5 +1,6 @@
 from crud.post_crud import (
     create_post,
+    delete_post,
     get_all_posts,
     get_post_by_id,
     get_post_by_title,
@@ -238,3 +239,16 @@ def edit_post(
             username=author.username,
         ),
     )
+
+
+# Delete post
+def remove_post(post_id: int, session: SessionDep) -> bool:
+    deleted_post = delete_post(post_id, session)
+
+    if not deleted_post:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to delete post",
+        )
+
+    return deleted_post
