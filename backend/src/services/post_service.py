@@ -192,9 +192,18 @@ def fetch_posts_by_author(
 # Edite a post
 def edit_post(
     post_id: int,
+    author_id: int,
     values: dict[str, str | None | bool],
     session: SessionDep,
 ) -> PostPublic:
+
+    post = fetch_post_by_id(post_id, session)
+
+    if post.author.id != author_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to edit this post",
+        )
 
     if not values:
         raise HTTPException(
@@ -214,17 +223,12 @@ def edit_post(
 
     updated_post = update_post(
         post_id,
-        values,  # type: ignore
+        values,
         session,
     )
+    assert updated_post is not None
 
-    if not updated_post:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Post with id {post_id} not found",
-        )
-
-    author = get_user_by_id(updated_post.author_id, session)
+    author = get_user_by_id(author_id, session)
     assert author is not None
 
     return PostPublic(
