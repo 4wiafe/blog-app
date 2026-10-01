@@ -10,16 +10,13 @@ from crud.user_crud import get_user_by_id, get_user_by_username
 from database import SessionDep
 from models.user import User
 from models.post import Post
-from schemas.post_schemas import (
-    PostCreate,
-    PostPublic,
-    PostUpdate,
-)
+from schemas.post_schemas import PostCreate, PostPublic
 from schemas.user_schemas import UserPublic
 
 from fastapi import HTTPException, status
 
 
+# Add new post
 def add_post(post: PostCreate, current_user: User, session: SessionDep) -> PostPublic:
     created_post = Post(
         title=post.title,
@@ -35,6 +32,7 @@ def add_post(post: PostCreate, current_user: User, session: SessionDep) -> PostP
         title=added_post.title,
         description=added_post.description,
         content=added_post.content,
+        edited=added_post.edited,
         author=UserPublic(
             id=current_user.id,  # type: ignore
             full_name=current_user.full_name,
@@ -43,6 +41,7 @@ def add_post(post: PostCreate, current_user: User, session: SessionDep) -> PostP
     )
 
 
+# Get all posts
 def list_posts(
     session: SessionDep,
     offset: int,
@@ -64,6 +63,7 @@ def list_posts(
                 title=post.title,
                 description=post.description,
                 content=post.content,
+                edited=post.edited,
                 author=UserPublic(
                     id=author.id,  # type: ignore
                     full_name=author.full_name,
@@ -75,6 +75,7 @@ def list_posts(
     return public_posts
 
 
+# Get post using post id
 def fetch_post_by_id(
     post_id: int,
     session: SessionDep,
@@ -96,6 +97,7 @@ def fetch_post_by_id(
         title=post.title,
         description=post.description,
         content=post.content,
+        edited=post.edited,
         author=UserPublic(
             id=author.id,  # type: ignore
             full_name=author.full_name,
@@ -104,6 +106,7 @@ def fetch_post_by_id(
     )
 
 
+# Get post using the post title
 def fetch_post_by_title(
     post_title: str,
     offset: int,
@@ -126,6 +129,7 @@ def fetch_post_by_title(
                 title=post.title,
                 description=post.description,
                 content=post.content,
+                edited=post.edited,
                 author=UserPublic(
                     id=author.id,  # type: ignore
                     full_name=author.full_name,
@@ -137,6 +141,7 @@ def fetch_post_by_title(
     return posts
 
 
+# Get posts created by author
 def fetch_posts_by_author(
     username: str,
     offset: int,
@@ -171,6 +176,7 @@ def fetch_posts_by_author(
                 title=post.title,
                 description=post.description,
                 content=post.content,
+                edited=post.edited,
                 author=UserPublic(
                     id=author.id,  # type: ignore
                     full_name=author.full_name,
@@ -182,9 +188,10 @@ def fetch_posts_by_author(
     return public_posts
 
 
+# Edite a post
 def edit_post(
     post_id: int,
-    values: dict[str, str | None],
+    values: dict[str, str | None | bool],
     session: SessionDep,
 ) -> PostPublic:
 
@@ -201,6 +208,8 @@ def edit_post(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Title and content cannot be null",
         )
+
+    values.update({"edited": True})
 
     updated_post = update_post(
         post_id,
@@ -222,6 +231,7 @@ def edit_post(
         title=updated_post.title,
         description=updated_post.description,
         content=updated_post.content,
+        edited=updated_post.edited,
         author=UserPublic(
             id=author.id,  # type: ignore
             full_name=author.full_name,

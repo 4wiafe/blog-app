@@ -25,6 +25,7 @@ class PostInDB(PostBase):
 class PostPublic(PostBase):
     id: int
     author: UserPublic
+    edited: bool
 
 
 class PostUpdate(BaseModel):
