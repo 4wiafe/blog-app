@@ -184,7 +184,7 @@ def fetch_posts_by_author(
 
 def edit_post(
     post_id: int,
-    values: PostUpdate,
+    values: dict[str, str | None],
     session: SessionDep,
 ) -> PostPublic:
 
@@ -194,8 +194,19 @@ def edit_post(
             detail="Update values cannot be empty",
         )
 
-    update_values = values.model_dump(exclude_unset=True)
-    updated_post = update_post(post_id, update_values, session)
+    if ("title" in values and values["title"] is None) or (
+        "content" in values and values["content"] is None
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Title and content cannot be null",
+        )
+
+    updated_post = update_post(
+        post_id,
+        values,  # type: ignore
+        session,
+    )
 
     if not updated_post:
         raise HTTPException(
@@ -203,7 +214,7 @@ def edit_post(
             detail=f"Post with id {post_id} not found",
         )
 
-    author = get_user_by_id(updated_post.id, session)  # type: ignore
+    author = get_user_by_id(updated_post.author_id, session)
     assert author is not None
 
     return PostPublic(

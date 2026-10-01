@@ -96,5 +96,6 @@ def get_post_by_id(id: int, session: SessionDep):
     response_model=PostPublic,
     status_code=status.HTTP_200_OK,
 )
-def update_post(id: int, values: PostUpdate, session):
-    return edit_post(id, values, session)
+def update_post(id: int, values: PostUpdate, session: SessionDep):
+    to_dict = values.model_dump(exclude_unset=True)
+    return edit_post(id, to_dict, session)
