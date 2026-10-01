@@ -34,6 +34,7 @@ router = APIRouter(
 )
 
 
+# Create a post
 @router.post(
     "",
     response_model=PostPublic,
@@ -48,6 +49,7 @@ def create_post(
     return added_post
 
 
+# Get all posts
 @router.get(
     "",
     response_model=list[PostPublic],
@@ -65,6 +67,7 @@ def get_posts(
     )
 
 
+# Search for a post
 @router.get(
     "/search",
     response_model=list[PostPublic],
@@ -82,6 +85,7 @@ def get_post_by_title(
     )
 
 
+# Get a post using post id
 @router.get(
     "/{id}",
     response_model=PostPublic,
@@ -91,6 +95,7 @@ def get_post_by_id(id: int, session: SessionDep):
     return fetch_post_by_id(id, session)
 
 
+# Edit a post
 @router.patch(
     "/posts/{id}",
     response_model=PostPublic,

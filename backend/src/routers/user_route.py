@@ -21,6 +21,7 @@ router = APIRouter(
 )
 
 
+# Create a user
 @router.post(
     "/register",
     response_model=UserPublic,
@@ -31,6 +32,7 @@ def add_new_user(user: UserCreate, session: SessionDep):
     return registered_user
 
 
+# Get current active user
 @router.get(
     "/users/me",
     response_model=UserPublic,
@@ -42,12 +44,14 @@ def read_active_user(
     return current_user
 
 
+# Get user by username
 @router.get("/users/{username}", response_model=UserPublic)
 def read_user_by_username(username: str, session: SessionDep):
     user = get_user_by_username(username, session)
     return user
 
 
+# Edit current user
 @router.patch(
     "/users/me", response_model=UserPublic, status_code=status.HTTP_201_CREATED
 )
@@ -66,6 +70,7 @@ def edit_user(
     return updated_user
 
 
+# Delete a user
 @router.delete("/users/me", status_code=status.HTTP_204_NO_CONTENT)
 def remove_user(
     session: SessionDep,
@@ -78,6 +83,7 @@ def remove_user(
     return deleted_user
 
 
+# Get posts of a user
 @router.get(
     "/users/{username}/posts",
     response_model=list[PostPublic],
