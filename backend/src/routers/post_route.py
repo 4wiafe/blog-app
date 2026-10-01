@@ -102,9 +102,19 @@ def get_post_by_id(id: int, session: SessionDep):
     response_model=PostPublic,
     status_code=status.HTTP_200_OK,
 )
-def update_post(id: int, values: PostUpdate, session: SessionDep):
+def update_post(
+    id: int,
+    values: PostUpdate,
+    session: SessionDep,
+    current_user: Annotated[User, Depends(get_current_active_user)],
+):
     to_dict = values.model_dump(exclude_unset=True)
-    return edit_post(id, to_dict, session)
+    return edit_post(
+        id,
+        current_user.id,  # type: ignore
+        to_dict,
+        session,
+    )
 
 
 # Delete a post
