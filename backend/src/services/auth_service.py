@@ -1,4 +1,4 @@
-from services.user_service import get_user_by_username
+from crud.user_crud import get_user_by_username
 from database import SessionDep
 from schemas.user_schemas import UserPublic
 from utils.helpers import verify_password, DUMMY_HASH
