@@ -92,7 +92,7 @@ def get_current_user(
         raise credentials_exception
 
     # Return a user
-    user = get_user_by_username(token_data.username, session)  # type: ignore
+    user = user_crud.get_user_by_username(token_data.username, session)  # type: ignore
 
     if user is None:
         raise credentials_exception
@@ -141,7 +141,7 @@ def get_user_by_username(username: str, session: SessionDep) -> User:
 
 # Get user using email
 def get_user_by_email(email: str, session: SessionDep) -> User:
-    user = user_crud.get_user_by_username(email, session)
+    user = user_crud.get_user_by_email(email, session)
 
     if user is None:
         raise HTTPException(
@@ -159,13 +159,7 @@ def update_user(
     session: SessionDep,
 ) -> UserPublic:
 
-    user = get_user_by_id(user_id, session)
-
-    if user.id != user_id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not allowed to perform this operation",
-        )
+    # No ownership check. Trusts the authenticated user for now
 
     if not values:
         raise HTTPException(
